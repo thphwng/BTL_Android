@@ -9,6 +9,7 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -23,6 +24,8 @@ import com.example.btl_android.Activity.MainActivity;
 import com.example.btl_android.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+import java.util.List;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -93,8 +96,9 @@ public class LoginActivity extends AppCompatActivity {
                         }
                     });
         });
+        // Quên mật khẩu
 
-        // Chuyển sang màn quên mật khẩu
+
         tvQuenMK.setOnClickListener(view -> {
             startActivity(new Intent(LoginActivity.this, ForgotPasswordActivity.class));
         });

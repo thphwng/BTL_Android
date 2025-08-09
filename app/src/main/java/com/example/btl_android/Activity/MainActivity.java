@@ -9,10 +9,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.btl_android.Adapter.FoodAdapter;
+import com.example.btl_android.R;
 import com.example.btl_android.databinding.ActivityMainBinding;
 import com.example.btl_android.model.Food;
 
 import java.util.ArrayList;
+import com.denzcoskun.imageslider.ImageSlider;
+import com.denzcoskun.imageslider.constants.ScaleTypes;
+import com.denzcoskun.imageslider.models.SlideModel;
+
 
 public class MainActivity extends AppCompatActivity {
     ActivityMainBinding binding;
@@ -23,6 +28,32 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         EdgeToEdge.enable(this);
         setContentView(binding.getRoot());
+
+        // --- Khởi tạo slider ảnh ---
+        ArrayList<SlideModel> slideModels = new ArrayList<>();
+        slideModels.add(new SlideModel(R.drawable.pho2, ScaleTypes.CENTER_CROP));
+        slideModels.add(new SlideModel(R.drawable.phocuon, ScaleTypes.CENTER_CROP));
+        slideModels.add(new SlideModel(R.drawable.buncha2, ScaleTypes.CENTER_CROP));
+        slideModels.add(new SlideModel(R.drawable.banhmi, ScaleTypes.CENTER_CROP));
+
+        ImageSlider imageSlider = findViewById(R.id.image_slider);
+        imageSlider.setImageList(slideModels, ScaleTypes.CENTER_CROP);
+// mở yêu thích
+        binding.btnDsfavorite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, FavoriteActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        binding.btnHistory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, HistoryActivity.class);
+                startActivity(intent);
+            }
+        });
 
         initRecyclerView();
         handleSearchClick();

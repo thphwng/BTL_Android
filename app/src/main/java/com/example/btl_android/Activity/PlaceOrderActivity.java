@@ -3,7 +3,6 @@ package com.example.btl_android.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.btl_android.Adapter.PlaceOrderAdapter;
 import com.example.btl_android.databinding.ActivityPlaceOrderBinding;
 import com.example.btl_android.model.Food;
+import com.example.btl_android.model.Order;
 import com.example.btl_android.utils.TinyDB;
 
 import java.util.ArrayList;
@@ -44,6 +44,7 @@ public class PlaceOrderActivity extends AppCompatActivity {
 
         setupCartList();
         calculateTotal();
+        handlePaymentSelection();
         handlePlaceOrder();
     }
 
@@ -59,35 +60,70 @@ public class PlaceOrderActivity extends AppCompatActivity {
             totalAmount += food.getPrice() * food.getQuantity();
         }
 
+      //  tax = 0;  // Nếu muốn tính thêm thuế: tax = totalAmount * 10 / 100;
+
         binding.tvSubtotal.setText(totalAmount + " VND");
-        binding.tvShipping.setText(shippingFee + "VND");
-        binding.tvTax.setText(0 + " VND");
-        binding.tvTotal.setText((totalAmount + shippingFee) + " VND");
+        binding.tvShipping.setText(shippingFee + " VND");
+
+        int finalTotal = totalAmount + shippingFee + tax;
+        binding.tvTotal.setText(finalTotal + " VND");
+    }
+
+    private void handlePaymentSelection() {
+        // mặc định chọn thanh toán khi nhận hàng
+        binding.rbTTnh.setChecked(true);
+
+        binding.rbTTnh.setOnClickListener(v -> binding.qrImage.setVisibility(android.view.View.GONE));
+        binding.rbTTck.setOnClickListener(v -> binding.qrImage.setVisibility(android.view.View.VISIBLE));
     }
 
     private void handlePlaceOrder() {
-        binding.btnPlaceOrder.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String name = binding.edtName.getText().toString().trim();
-                String address = binding.edtAddress.getText().toString().trim();
-              //  String payment = binding.edtPayment.getText().toString().trim();
-                String coupon = binding.edtCoupon.getText().toString().trim();
+        binding.btnPlaceOrder.setOnClickListener(v -> {
+            String name = binding.edtName.getText().toString().trim();
+            String address = binding.edtAddress.getText().toString().trim();
+            String phone = binding.edtPhone.getText().toString().trim();
+            String coupon = binding.edtCoupon.getText().toString().trim();
 
-                if (TextUtils.isEmpty(name) || TextUtils.isEmpty(address) ) {
-                    Toast.makeText(PlaceOrderActivity.this, "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                // Xử lý đơn hàng ở đây nếu cần (gửi Firebase, lưu DB...)
-
-                Toast.makeText(PlaceOrderActivity.this, "Đặt hàng thành công!", Toast.LENGTH_LONG).show();
-                tinyDB.remove("CART_LIST");
-
-                Intent intent = new Intent(PlaceOrderActivity.this, ThankYouActivity.class);
-                startActivity(intent);
-                finish();
+            // ====== KIỂM TRA DỮ LIỆU ======
+            if (TextUtils.isEmpty(name) || TextUtils.isEmpty(address) || TextUtils.isEmpty(phone)) {
+                Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            if (!phone.matches("\\d{9,15}")) {
+                Toast.makeText(this, "Số điện thoại phải có từ 9 đến 15 chữ số", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (!binding.rbTTnh.isChecked() && !binding.rbTTck.isChecked()) {
+                Toast.makeText(this, "Vui lòng chọn phương thức thanh toán", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // ====== LƯU ĐƠN HÀNG ======
+            String paymentMethod = binding.rbTTck.isChecked() ? "Chuyển khoản" : "Thanh toán khi nhận";
+            int finalTotal = totalAmount + shippingFee + tax;
+            String orderId = "DH" + System.currentTimeMillis();
+
+            Order newOrder = new Order(orderId, name, address, phone, paymentMethod, finalTotal, new ArrayList<>(cartList));
+
+            ArrayList<Order> historyList = tinyDB.getListObject("HISTORY_LIST", Order.class);
+            if (historyList == null) {
+                historyList = new ArrayList<>();
+            }
+
+            // Thêm đơn mới lên đầu danh sách
+            historyList.add(0, newOrder);
+
+            // Lưu vào TinyDB
+            tinyDB.putListObject("HISTORY_LIST", historyList);
+
+            Toast.makeText(this, "Đặt hàng thành công!", Toast.LENGTH_LONG).show();
+            tinyDB.remove("CART_LIST");
+
+            Intent intent = new Intent(PlaceOrderActivity.this, ThankYouActivity.class);
+            startActivity(intent);
+            finish();
         });
     }
 }

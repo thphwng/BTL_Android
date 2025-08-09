@@ -29,6 +29,10 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.ViewHolder> {
     public FoodAdapter(ArrayList<Food> items){
         this.items=items;
     }
+    public FoodAdapter(ArrayList<Food> items, Context context) {
+        this.items = items;
+        this.context = context;
+    }
 
     @NonNull
     @Override
@@ -44,6 +48,12 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.ViewHolder> {
         holder.binding.titleTxt.setText(items.get(position).getName());
        holder.binding.titleQuan.setText(items.get(position).getDescription());
        holder.binding.gia.setText(items.get(position).getPrice()+ "VND");
+
+       //log du lieu
+        Log.d("FoodAdapter", "Name: " + food.getName() +
+                ", Desc: " + food.getDescription() +
+                ", Price: " + food.getPrice());
+
 
         //Load ảnh từ drawable theo tên:
         int imageResId = context.getResources().getIdentifier(items.get(position).getImage(), "drawable", context.getPackageName());

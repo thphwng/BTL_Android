@@ -22,6 +22,10 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         btnContactAdmin = findViewById(R.id.btnContactAdmin);
         btnResetPassword = findViewById(R.id.btnResetPassword);
 
+        //truyền email
+        String email = getIntent().getStringExtra("email");
+
+
         // Xử lý sự kiện khi nhấn nút "Liên hệ quản trị viên"
         btnContactAdmin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,6 +56,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                 // Chuyển đến màn hình nhập email để đặt lại mật khẩu
                 // Bạn cần tạo một Activity mới, ví dụ ResetPasswordEmailActivity
                 Intent intent = new Intent(ForgotPasswordActivity.this, ResetPasswordActivity.class);
+                intent.putExtra("email", email);
                 startActivity(intent);
             }
         });

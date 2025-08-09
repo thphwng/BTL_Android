@@ -97,11 +97,24 @@ public class LoginActivity extends AppCompatActivity {
                     });
         });
         // Quên mật khẩu
-
-
         tvQuenMK.setOnClickListener(view -> {
-            startActivity(new Intent(LoginActivity.this, ForgotPasswordActivity.class));
+            String email = edtUsername.getText().toString().trim();
+
+            if (TextUtils.isEmpty(email)) {
+                Toast.makeText(LoginActivity.this, "Vui lòng nhập email trước", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            Intent intent = new Intent(LoginActivity.this, ForgotPasswordActivity.class);
+            intent.putExtra("email_key", email);
+            startActivity(intent);
         });
+
+
+
+//        tvQuenMK.setOnClickListener(view -> {
+//            startActivity(new Intent(LoginActivity.this, ForgotPasswordActivity.class));
+//        });
 
         // Tạo chữ "Đăng ký" màu xanh và có thể click
         String fullText = "Bạn chưa có tài khoản YummiGO? Đăng ký";
